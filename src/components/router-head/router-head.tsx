@@ -11,7 +11,7 @@ export const RouterHead = component$(() => {
   const title = head.title;
   const description =
     head.meta.find((m) => m.name === "description")?.content ??
-    "개발 블로그";
+    "Dev blog";
   const image = head.meta.find((m) => m.property === "og:image")?.content;
 
   return (

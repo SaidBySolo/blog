@@ -25,7 +25,7 @@ export default component$(() => {
   });
 
   return (
-    <label class="swap swap-rotate btn btn-ghost btn-sm btn-circle" aria-label="테마 전환">
+    <label class="swap swap-rotate btn btn-ghost btn-sm btn-circle" aria-label="Toggle theme">
       <input
         type="checkbox"
         checked={isDark.value}

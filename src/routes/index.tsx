@@ -14,7 +14,7 @@ export default component$(() => {
 
   return (
     <div class="mx-auto w-full max-w-3xl px-4 py-10">
-      {/* 소개 섹션 */}
+      {/* Intro */}
       <section class="flex items-center gap-4 mb-12">
         {author?.avatar && (
           <img
@@ -27,7 +27,7 @@ export default component$(() => {
         )}
         <div>
           <h1 class="text-2xl font-bold tracking-tight">SaidBySolo</h1>
-          <p class="mt-1 text-sm text-base-content/60">{author?.bio ?? "개발 블로그"}</p>
+          <p class="mt-1 text-sm text-base-content/60">{author?.bio ?? "Dev blog"}</p>
           {author?.github && (
             <a
               href={author.github}
@@ -41,15 +41,15 @@ export default component$(() => {
         </div>
       </section>
 
-      {/* 최근 글 */}
+      {/* Recent posts */}
       <section>
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold">최근 글</h2>
+          <h2 class="text-lg font-semibold">Recent Posts</h2>
           <Link
             href="/posts"
             class="text-xs text-base-content/50 hover:text-base-content transition-colors"
           >
-            전체 보기 →
+            View all →
           </Link>
         </div>
 

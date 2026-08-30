@@ -25,7 +25,7 @@ export default component$(() => {
         </Link>
 
         <nav class="flex items-center gap-1">
-          <Link href="/" class={linkClass("/")}>홈</Link>
+          <Link href="/" class={linkClass("/")}>Home</Link>
           {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
             <Link key={key} href={`/${key}`} class={linkClass(`/${key}`)}>
               {label}

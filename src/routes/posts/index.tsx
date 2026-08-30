@@ -12,7 +12,7 @@ export default component$(() => {
 
   return (
     <div class="mx-auto w-full max-w-3xl px-4 py-10">
-      <h1 class="text-2xl font-bold tracking-tight mb-8">전체 글</h1>
+      <h1 class="text-2xl font-bold tracking-tight mb-8">All Posts</h1>
 
       <ul class="divide-y divide-base-200">
         {posts.value.map((post) => (
@@ -43,7 +43,7 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "전체 글 · SaidBySolo",
+  title: "All Posts · SaidBySolo",
 };
 
 export { useRecentPosts };

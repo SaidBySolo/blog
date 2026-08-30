@@ -1,0 +1,152 @@
+---
+title: "MDX 렌더링 테스트"
+date: 2026-08-30
+author: SaidBySolo
+description: "각종 MDX 문법이 제대로 렌더링되는지 테스트합니다"
+---
+
+# 제목 1
+
+## 제목 2
+
+### 제목 3
+
+#### 제목 4
+
+---
+
+## 텍스트 스타일
+
+**굵은 글씨**와 *기울임* 그리고 ~~취소선~~입니다.
+
+`인라인 코드`를 섞어서 씁니다. [링크](https://github.com/SaidBySolo)도 있고요.
+
+> 인용문입니다.
+> 여러 줄도 가능합니다.
+
+---
+
+## 코드 블록
+
+```ts
+// TypeScript 예시
+interface User {
+  id: number;
+  name: string;
+}
+
+function greet(user: User): string {
+  return `Hello, ${user.name}!`;
+}
+
+console.log(greet({ id: 1, name: "Solo" }));
+```
+
+```python
+# Python 예시
+def fibonacci(n: int) -> list[int]:
+    result = [0, 1]
+    for _ in range(n - 2):
+        result.append(result[-1] + result[-2])
+    return result[:n]
+
+print(fibonacci(10))
+```
+
+```bash
+# 터미널 명령어
+pnpm install
+pnpm dev
+```
+
+---
+
+## 목록
+
+**순서 있는 목록:**
+
+1. 첫 번째 항목
+2. 두 번째 항목
+3. 세 번째 항목
+
+**순서 없는 목록:**
+
+- 프론트엔드
+- 백엔드
+- 인프라
+
+**중첩 목록:**
+
+- 상위
+  - 하위 1
+  - 하위 2
+    - 더 깊은 하위
+
+---
+
+## 표
+
+| 언어 | 용도 | 비고 |
+|------|------|------|
+| TypeScript | 프론트엔드 | 주력 |
+| Go | 백엔드 | 최근 학습 중 |
+| Python | 스크립트 | 자동화 |
+
+---
+
+## 체크리스트
+
+- [x] MDX 기본 렌더링
+- [x] 코드 하이라이팅
+- [ ] 이미지 업로드 테스트
+- [ ] OG 이미지 생성
+
+---
+
+## 각주
+
+각주를 사용할 수도 있습니다[^1].
+
+[^1]: 각주 내용입니다.
+
+---
+
+## 수학 (KaTeX)
+
+인라인 수식: $E = mc^2$
+
+블록 수식:
+
+$$
+\int_{-\infty}^{\infty} e^{-x^2} \, dx = \sqrt{\pi}
+$$
+
+---
+
+## HTML 블록 테스트 (daisyUI)
+
+<div class="alert alert-info shadow-lg">
+  <span>daisyUI alert를 MDX에서 사용할 수 있습니다.</span>
+</div>
+
+<div class="alert alert-success shadow-lg">
+  <span>성공 메시지도 표시됩니다.</span>
+</div>
+
+---
+
+## Discord 타임스탬프
+
+각 포맷 예시입니다.
+
+- 짧은 시간: [t:1756540800:t]
+- 긴 시간: [t:1756540800:T]
+- 짧은 날짜: [t:1756540800:d]
+- 긴 날짜: [t:1756540800:D]
+- 날짜+시간: [t:1756540800:f]
+- 긴 날짜+시간: [t:1756540800:F]
+- 상대 시간: [t:1756540800:R]
+
+**예약된 시간:**
+- 마지막 업데이트: [t:1772582400:R]
+- 점검 시작: [t:1773100800:F]

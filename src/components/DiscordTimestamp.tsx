@@ -49,10 +49,10 @@ function getRelativeTime(unix: number, locale: string): string {
   const sign = diffSec < 0 ? -1 : 1;
   const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
 
-  if (absSec < 60)       return rtf.format(sign * Math.round(absSec), 'second');
-  if (absSec < 3600)     return rtf.format(sign * Math.round(absSec / 60), 'minute');
-  if (absSec < 86400)    return rtf.format(sign * Math.round(absSec / 3600), 'hour');
-  if (absSec < 2592000)  return rtf.format(sign * Math.round(absSec / 86400), 'day');
+  if (absSec < 60) return rtf.format(sign * Math.round(absSec), 'second');
+  if (absSec < 3600) return rtf.format(sign * Math.round(absSec / 60), 'minute');
+  if (absSec < 86400) return rtf.format(sign * Math.round(absSec / 3600), 'hour');
+  if (absSec < 2592000) return rtf.format(sign * Math.round(absSec / 86400), 'day');
   if (absSec < 31536000) return rtf.format(sign * Math.round(absSec / 2592000), 'month');
   return rtf.format(sign * Math.round(absSec / 31536000), 'year');
 }

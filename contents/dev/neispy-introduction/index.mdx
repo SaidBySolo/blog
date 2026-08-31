@@ -1,0 +1,301 @@
+---
+title: "neispy: 파이썬으로 학교 급식과 시간표 가져오기"
+date: 2026-08-31
+author: SaidBySolo
+description: "NEIS Open API 래퍼 neispy를 만든 이유부터 Discord 급식 봇과 시간표 조회 예제까지"
+---
+
+> 오늘 급식 뭐지?
+
+고등학생 때 Discord 봇에 급식 조회 기능을 넣으면서 매일 마주한 질문입니다. 필요한 데이터는 이미 NEIS Open API에 있었지만, 파라미터 이름을 하나씩 확인하고 중첩된 JSON 응답을 직접 풀어 쓰는 과정은 생각보다 번거로웠습니다.
+
+간단한 기능 하나를 만들 때마다 같은 코드를 반복해야 했고, 잘못 입력한 필드 이름은 실행한 뒤에야 알 수 있었습니다.
+
+그래서 파이썬에서 NEIS 데이터를 조금 더 편하게 다룰 수 있도록 **neispy**를 만들었습니다.
+
+학교 검색부터 급식, 시간표, 학사일정까지 NEIS Open API의 엔드포인트를 파이썬 메서드로 감싼 라이브러리입니다. 간단한 스크립트에서는 동기 방식으로, Discord 봇이나 웹 서버에서는 비동기 방식으로 사용할 수 있습니다.
+
+이 글에서는 neispy가 어떤 문제를 해결하는지 살펴보고, 실제로 급식 봇과 시간표 조회 기능을 만드는 과정까지 소개합니다.
+
+## NEIS 데이터, 직접 요청하면 무엇이 불편할까
+
+[NEIS 교육정보 개방 포털](https://open.neis.go.kr/)은 전국 초·중·고등학교의 여러 데이터를 공개합니다.
+
+- 학교 기본 정보
+- 급식 식단과 알레르기 정보
+- 초·중·고·특수학교 시간표
+- 학사일정
+- 학년 및 반 정보
+- 학원·교습소 정보
+
+데이터 자체는 유용하지만, 실제 애플리케이션에서 사용하려면 몇 단계를 거쳐야 합니다. 먼저 학교 이름으로 교육청 코드와 표준학교 코드를 찾고, 그 코드를 다시 급식이나 시간표 API에 전달해야 합니다.
+
+응답도 `head`와 `row`가 섞인 중첩 JSON이어서 필요한 값까지 직접 찾아 들어가야 합니다.
+
+neispy는 이 과정을 파이썬 메서드와 타입이 적용된 응답 객체로 감쌉니다. 각 데이터셋의 응답은 dataclass로 변환되고, 패키지에는 `py.typed` 표시와 요청 파라미터 타입도 포함되어 있습니다.
+
+HTTP 요청 URL을 조립하거나 JSON 키를 일일이 다루는 대신, 다음과 같이 필요한 조건만 넘기면 됩니다.
+
+```python
+school_info = await neis.schoolInfo(SCHUL_NM="인천동방초등학교")
+school = school_info.schoolInfo[1].row[0]
+
+office_code = school.ATPT_OFCDC_SC_CODE
+school_code = school.SD_SCHUL_CODE
+```
+
+여기서 `[1]`이 등장하는 이유는 NEIS 응답이 메타데이터와 처리 결과가 담긴 `head`, 실제 데이터가 담긴 `row`로 나뉘기 때문입니다.
+
+neispy도 이 구조를 유지해 0번에는 `head`, 1번에는 `row`를 담습니다. 처음에는 낯설지만 `school_info.schoolInfo[1].row`처럼 같은 패턴으로 모든 데이터셋에 접근할 수 있습니다.
+
+`ATPT_OFCDC_SC_CODE`처럼 처음 보면 낯선 필드도 IDE 자동완성과 타입 힌트를 통해 확인할 수 있습니다. 오타를 실행 전에 발견하기 쉬워지는 것도 래퍼를 사용하는 이유 중 하나입니다.
+
+## 설치하고 급식 한 번 조회해 보기
+
+설치는 간단합니다.
+
+```bash
+pip install neispy
+```
+
+다음 코드는 학교 이름을 검색한 뒤 오늘의 급식을 출력하는 가장 작은 예제입니다.
+
+```python
+import asyncio
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+from neispy import Neispy
+
+
+async def main() -> None:
+    today = datetime.now(ZoneInfo("Asia/Seoul")).strftime("%Y%m%d")
+
+    async with Neispy() as neis:
+        school_info = await neis.schoolInfo(SCHUL_NM="인천동방초등학교")
+        school = school_info.schoolInfo[1].row[0]
+
+        meal_info = await neis.mealServiceDietInfo(
+            ATPT_OFCDC_SC_CODE=school.ATPT_OFCDC_SC_CODE,
+            SD_SCHUL_CODE=school.SD_SCHUL_CODE,
+            MLSV_YMD=today,
+        )
+        meal = meal_info.mealServiceDietInfo[1].row[0]
+
+        print(meal.DDISH_NM.replace("<br/>", "\n"))
+
+
+asyncio.run(main())
+```
+
+API 키를 전달하지 않으면 NEIS에서 제공하는 샘플 키로 요청하므로 설치 직후 구조를 확인하기 좋습니다. 다만 샘플 키는 페이지가 첫 페이지로 고정되고 한 번에 5건만 반환됩니다.
+
+실제 서비스를 운영한다면 [NEIS 개발자 가이드](https://open.neis.go.kr/portal/guide/apiGuidePage.do)에 따라 인증키를 발급받아 사용하는 편이 좋습니다.
+
+```python
+async with Neispy(KEY="your-api-key") as neis:
+    ...
+```
+
+## 실제 사용 사례 1: Discord 급식 봇
+
+neispy를 처음 만든 목적도 Discord 봇에서 급식을 보여주는 것이었습니다. 사용자가 `!급식 학교이름`을 입력하면 학교 코드를 찾고, 오늘 날짜의 식단을 Embed로 응답하도록 만들 수 있습니다.
+
+아래 예제는 `discord.py`의 `bot` 객체가 이미 만들어져 있고, 발급받은 인증키는 `NEIS_API_KEY` 환경 변수에 저장되어 있다고 가정합니다.
+
+```python
+import os
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import discord
+from neispy import Neispy
+from neispy.error import DataNotFound
+
+
+@bot.command(name="급식")
+async def meal_command(ctx, *, school_name: str) -> None:
+    today = datetime.now(ZoneInfo("Asia/Seoul")).strftime("%Y%m%d")
+
+    try:
+        async with Neispy(KEY=os.environ["NEIS_API_KEY"]) as neis:
+            school_info = await neis.schoolInfo(SCHUL_NM=school_name)
+            school = school_info.schoolInfo[1].row[0]
+
+            meal_info = await neis.mealServiceDietInfo(
+                ATPT_OFCDC_SC_CODE=school.ATPT_OFCDC_SC_CODE,
+                SD_SCHUL_CODE=school.SD_SCHUL_CODE,
+                MLSV_YMD=today,
+            )
+            meal = meal_info.mealServiceDietInfo[1].row[0]
+    except DataNotFound:
+        await ctx.send("학교 또는 오늘의 급식 정보를 찾지 못했습니다.")
+        return
+
+    menu = meal.DDISH_NM.replace("<br/>", "\n")
+    nutrition = meal.NTR_INFO.replace("<br/>", "\n")
+    embed = discord.Embed(
+        title=f"{school.SCHUL_NM} 오늘의 급식",
+        description=menu,
+        color=0x4F8EF7,
+    )
+    embed.add_field(name="식사", value=meal.MMEAL_SC_NM)
+    embed.add_field(name="열량", value=meal.CAL_INFO)
+    embed.add_field(name="영양 정보", value=nutrition, inline=False)
+    await ctx.send(embed=embed)
+```
+
+급식 응답에는 메뉴만 들어 있지 않습니다. `MMEAL_SC_NM`은 조식·중식·석식 구분, `CAL_INFO`는 열량, `NTR_INFO`는 주요 영양소, `ORPLC_INFO`는 원산지 정보를 담습니다.
+
+서비스 성격에 따라 필요한 값만 골라 카드나 상세 화면을 구성할 수 있습니다.
+
+메뉴 이름 뒤의 `1.5.6.` 같은 숫자는 음식 번호가 아니라 알레르기 유발 식재료 표시입니다. 공식 [급식식단정보 데이터셋](https://open.neis.go.kr/portal/data/service/selectServicePage.do?infId=OPEN17320190722180924242823&infSeq=2)은 1번 난류부터 19번 잣까지의 기준을 제공합니다.
+
+알레르기 정보를 별도의 안내로 풀어 보여주면 숫자의 의미를 모르는 사용자에게 더 친절한 기능이 됩니다.
+
+이 예제에서 중요한 부분은 두 번의 요청이 하나의 `async with` 블록 안에 있다는 점입니다.
+
+neispy는 블록 안에서 `aiohttp.ClientSession`을 재사용하고, 블록을 벗어날 때 세션을 닫습니다. 학교 검색과 급식 조회처럼 연속된 요청을 처리할 때 매번 세션을 새로 만들지 않아도 됩니다.
+
+사용자가 같은 학교를 반복해서 조회하는 서비스라면 한 단계 더 개선할 수 있습니다. 학교 이름과 교육청·학교 코드의 매핑을 데이터베이스나 캐시에 저장하면, 이후부터는 급식 API만 호출하면 됩니다.
+
+학교 정보는 자주 바뀌지 않기 때문에 체감 응답 속도와 API 호출량을 함께 줄일 수 있습니다.
+
+하루가 아니라 여러 날의 식단이 필요하면 날짜 범위를 전달할 수도 있습니다.
+
+```python
+weekly_meals = await neis.mealServiceDietInfo(
+    ATPT_OFCDC_SC_CODE=office_code,
+    SD_SCHUL_CODE=school_code,
+    MLSV_FROM_YMD="20260901",
+    MLSV_TO_YMD="20260905",
+)
+
+for meal in weekly_meals.mealServiceDietInfo[1].row:
+    print(meal.MLSV_YMD, meal.DDISH_NM.replace("<br/>", ", "))
+```
+
+이 형태는 주간 급식표, 가정통신문 보조 도구, 매일 정해진 시간에 급식을 보내는 알림 서비스에 활용하기 좋습니다.
+
+## 실제 사용 사례 2: 시간표를 리스트로 만들기
+
+시간표도 같은 흐름으로 조회할 수 있습니다. 아래 함수는 날짜, 학년, 반을 받아 초등학교 시간표를 교시 순서대로 반환합니다.
+
+```python
+from neispy import Neispy
+
+
+async def get_elementary_timetable(
+    school_name: str,
+    date: str,
+    semester: int,
+    grade: int,
+    class_name: int,
+) -> list[str]:
+    async with Neispy() as neis:
+        school_info = await neis.schoolInfo(SCHUL_NM=school_name)
+        school = school_info.schoolInfo[1].row[0]
+
+        timetable_info = await neis.elsTimetable(
+            ATPT_OFCDC_SC_CODE=school.ATPT_OFCDC_SC_CODE,
+            SD_SCHUL_CODE=school.SD_SCHUL_CODE,
+            AY=date[:4],
+            SEM=str(semester),
+            ALL_TI_YMD=date,
+            GRADE=str(grade),
+            CLASS_NM=str(class_name),
+        )
+
+        rows = timetable_info.elsTimetable[1].row
+        return [f"{row.PERIO}교시 · {row.ITRT_CNTNT}" for row in rows]
+```
+
+예를 들어 `date="20260310"`, `semester=1`, `grade=3`, `class_name=2`를 전달하면 2026년 3월 10일, 3학년 2반의 시간표를 리스트로 만들 수 있습니다.
+
+이 결과는 Discord Embed뿐 아니라 학교 알림 앱, 위젯, 교실 대시보드의 입력값으로도 바로 활용할 수 있습니다.
+
+학교급에 따라 호출하는 메서드만 바꾸면 됩니다.
+
+| 학교급   | 메서드           |
+| -------- | ---------------- |
+| 초등학교 | `elsTimetable()` |
+| 중학교   | `misTimetable()` |
+| 고등학교 | `hisTimetable()` |
+| 특수학교 | `spsTimetable()` |
+
+## 스크립트에서는 동기 방식으로
+
+비동기 코드가 필요하지 않은 일회성 데이터 수집이나 간단한 자동화 스크립트라면 `Neispy.sync()`를 사용할 수 있습니다.
+
+메서드와 응답 구조가 비동기 방식과 같아서 `await`만 제거하면 됩니다.
+
+```python
+from neispy import Neispy
+
+
+neis = Neispy.sync()
+school_info = neis.schoolInfo(SCHUL_NM="인천동방초등학교")
+school = school_info.schoolInfo[1].row[0]
+
+print(school.SCHUL_NM)
+print(school.ORG_RDNMA)  # 도로명 주소
+```
+
+Discord 봇, FastAPI처럼 이미 이벤트 루프 위에서 동작하는 애플리케이션에서는 비동기 클라이언트를, 짧은 스크립트나 데이터 확인 작업에서는 동기 클라이언트를 선택하면 됩니다.
+
+## 어떤 데이터를 조회할 수 있나
+
+neispy는 NEIS Open API의 데이터셋을 메서드로 제공합니다. 자주 사용하는 메서드는 다음과 같습니다.
+
+| 메서드                                                 | 활용 예시                               |
+| ------------------------------------------------------ | --------------------------------------- |
+| `schoolInfo()`                                         | 학교 검색, 교육청·학교 코드 확인        |
+| `mealServiceDietInfo()`                                | 날짜별 급식 및 알레르기 정보 조회       |
+| `SchoolSchedule()`                                     | 시험, 방학, 재량휴업일 등 학사일정 조회 |
+| `elsTimetable()` / `misTimetable()` / `hisTimetable()` | 초·중·고 시간표 조회                    |
+| `classInfo()`                                          | 학년별 반 정보 조회                     |
+| `schoolMajorinfo()`                                    | 특성화고 등의 학과 정보 조회            |
+| `acaInsTiInfo()`                                       | 지역별 학원·교습소 정보 조회            |
+
+요청 인자는 공식 포털과 같은 이름을 사용합니다. 처음에는 길어 보이지만 공식 데이터셋 문서와 코드를 나란히 보기 쉽고, neispy가 제공하는 타입 힌트 덕분에 IDE에서도 사용 가능한 인자를 확인할 수 있습니다.
+
+## 실제 서비스에 적용하기 전에 알아둘 점
+
+예제 코드는 핵심 흐름을 보여주기 위해 첫 번째 검색 결과를 사용했습니다. 운영 환경에서는 몇 가지를 더 고려해야 합니다.
+
+### 같은 이름의 학교 구분하기
+
+학교 이름만으로 검색하면 여러 결과가 나올 수 있습니다. 검색 결과의 주소나 교육청, 학교 종류까지 사용자에게 보여주고 정확한 학교를 선택하게 하는 것이 안전합니다. 선택이 끝나면 교육청 코드와 학교 코드를 저장해 반복 검색을 피할 수 있습니다.
+
+### “데이터 없음”도 정상 흐름으로 처리하기
+
+주말이나 방학에는 급식과 시간표 데이터가 없을 수 있고, 아직 다음 학기 데이터가 등록되지 않았을 수도 있습니다. NEIS는 이런 상태를 HTTP 상태 코드가 아니라 응답 본문의 `INFO-200`으로 알려줍니다. neispy는 이 코드를 `DataNotFound` 예외로 변환하므로 Discord 예제처럼 정상적인 빈 결과로 처리할 수 있습니다.
+
+사용자에게는 오류 화면 대신 “등록된 급식이 없습니다”처럼 상황에 맞는 메시지를 보여주는 것이 좋습니다.
+
+### 샘플 키는 테스트에만 사용하기
+
+키 없이 바로 시작할 수 있는 것은 학습과 프로토타이핑에 편리하지만, 공식 문서상 샘플 키는 첫 페이지의 5건만 제공합니다. 호출량이 늘어나는 서비스라면 본인의 API 키를 발급받고, 환경 변수로 관리해 소스 코드에 노출되지 않도록 해야 합니다.
+
+포털은 서비스별 이용 가능 횟수를 제한할 수 있으므로, 반복 조회 결과를 캐시하고 일시적인 실패에 대비하는 것도 필요합니다.
+
+### 클라이언트의 범위를 너무 작게 잡지 않기
+
+한 작업에서 여러 데이터를 조회한다면 같은 `Neispy` 컨텍스트 안에서 처리하는 편이 좋습니다. 여러 학교의 데이터를 한꺼번에 수집하거나 급식과 학사일정을 함께 가져올 때 세션을 재사용할 수 있기 때문입니다.
+
+## 작은 불편에서 시작한 라이브러리
+
+neispy는 거창한 계획보다 “내가 쓰려는 기능을 조금 더 편하게 만들자”는 필요에서 시작했습니다. 고등학생 때 만든 첫 버전은 2020 공개SW 개발자 대회에서 조직위원장 특별상을 받았고, 이후 동기 요청과 컨텍스트 매니저, 타입 힌트 등 실제 사용 중 필요했던 기능을 더해 왔습니다.
+
+학교 생활과 관련된 서비스를 만든다면 급식 하나만으로도 충분히 시작할 수 있습니다. 여기에 시간표와 학사일정을 결합하면 Discord 봇, 모바일 앱, 교실 대시보드처럼 다양한 형태로 확장할 수 있습니다.
+
+NEIS 응답을 해석하는 반복 작업은 neispy에 맡기고, 서비스가 사용자에게 어떤 경험을 줄지에 더 집중해 보세요.
+
+소스 코드와 전체 사용 예시는 [GitHub 저장소](https://github.com/SaidBySolo/neispy)에서 확인할 수 있습니다. 사용 중 문제가 생기거나 지원이 필요한 데이터가 있다면 이슈와 PR도 언제든 환영합니다.
+
+## 참고 자료
+
+- [neispy GitHub 저장소](https://github.com/SaidBySolo/neispy)
+- [neispy PyPI 패키지](https://pypi.org/project/neispy/)
+- [NEIS Open API 개발자 가이드](https://open.neis.go.kr/portal/guide/apiGuidePage.do)
+- [NEIS 급식식단정보 데이터셋](https://open.neis.go.kr/portal/data/service/selectServicePage.do?infId=OPEN17320190722180924242823&infSeq=2)

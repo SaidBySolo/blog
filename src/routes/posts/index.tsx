@@ -15,13 +15,15 @@ export default component$(() => {
       <h1 class="text-2xl font-bold tracking-tight mb-8">All Posts</h1>
 
       <ul class="divide-y divide-base-200">
-        {posts.value.map((post) => (
+        {posts.value.map((post, i) => (
           <li key={`${post.category}/${post.slug}`}>
             <Link
               href={`/${post.category}/${post.slug}`}
               class="group flex items-baseline gap-4 py-3"
             >
-              <span class="w-8 shrink-0 text-right text-xs text-base-content/40" />
+              <span class="w-8 shrink-0 text-right text-xs text-base-content/40">
+                {i + 1}
+              </span>
               <span class="flex-1 truncate text-sm group-hover:underline underline-offset-4">
                 {post.frontmatter.title || post.slug}
               </span>

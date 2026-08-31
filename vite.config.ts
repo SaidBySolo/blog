@@ -31,7 +31,18 @@ export default defineConfig(({ command, mode }): UserConfig => {
     plugins: [tailwindcss(), qwikCity({
       mdx: {
         remarkPlugins: [remarkDiscordTimestamp, remarkMath],
-        rehypePlugins: [rehypeKatex, rehypePrettyCode],
+        rehypePlugins: [
+          rehypeKatex,
+          [
+            rehypePrettyCode,
+            {
+              theme: {
+                dark: "rose-pine-moon",
+                light: "rose-pine-dawn",
+              },
+            } satisfies import("rehype-pretty-code").Options,
+          ],
+        ],
       },
     }), qwikVite(), viteStaticCopy(
       {

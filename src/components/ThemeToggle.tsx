@@ -8,9 +8,8 @@ export const themeScript = `
 (function() {
   try {
     var saved = localStorage.getItem("theme");
-    var theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    var theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "rosepine-moon" : "rosepine-dawn");
     document.documentElement.dataset.theme = theme;
-    if (theme === "dark") document.documentElement.classList.add("dark");
   } catch (e) {}
 })();
 `;
@@ -21,7 +20,7 @@ export default component$(() => {
   // 클라이언트에서 초기 테마를 읽어 체크박스 상태를 맞춥니다.
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
-    isDark.value = document.documentElement.dataset.theme === "dark";
+    isDark.value = document.documentElement.dataset.theme === "rosepine-moon";
   });
 
   return (
@@ -32,9 +31,8 @@ export default component$(() => {
         onChange$={(e) => {
           const dark = (e.target as HTMLInputElement).checked;
           isDark.value = dark;
-          const theme = dark ? "dark" : "light";
+          const theme = dark ? "rosepine-moon" : "rosepine-dawn";
           document.documentElement.dataset.theme = theme;
-          document.documentElement.classList.toggle("dark", dark);
           localStorage.setItem("theme", theme);
         }}
       />

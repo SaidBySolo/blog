@@ -4,6 +4,10 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@builder.io/qwik': npm:@qwik.dev/core@^2
+  '@builder.io/qwik-city': npm:@qwik.dev/router@^2
+
 importers:
 
   .:

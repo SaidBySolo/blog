@@ -1,4 +1,4 @@
-import { routeLoader$ } from "@builder.io/qwik-city";
+import { routeLoader$ } from "@qwik.dev/router";
 import authorsJson from '../contents/authors.json';
 import categoriesJson from '../contents/categories.json';
 

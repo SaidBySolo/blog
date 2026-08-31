@@ -1,5 +1,5 @@
-import { component$, useSignal, useComputed$ } from '@builder.io/qwik';
-import { useNavigate, type StaticGenerateHandler } from '@builder.io/qwik-city';
+import { component$, useSignal, useComputed$ } from '@qwik.dev/core';
+import { useNavigate, type StaticGenerateHandler } from '@qwik.dev/router';
 import { usePostList, getAuthor, categoryLabel, BLOG_POST_LIST } from '~/utils';
 
 const PAGE_SIZE = 20;

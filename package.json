@@ -24,14 +24,15 @@
     "qwik": "qwik"
   },
   "devDependencies": {
-    "@builder.io/qwik": "^1.18.0",
-    "@builder.io/qwik-city": "^1.18.0",
     "@eslint/js": "latest",
+    "@qwik.dev/core": "2.0.0-beta.42",
+    "@qwik.dev/router": "2.0.0-beta.42",
     "@tailwindcss/typography": "^0.5.19",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/mdast": "^4.0.4",
     "@types/node": "20.19.0",
     "eslint": "9.32.0",
-    "eslint-plugin-qwik": "^1.18.0",
+    "eslint-plugin-qwik": "2.0.0-beta.40",
     "globals": "16.4.0",
     "lucide-qwik": "^1.0.0",
     "prettier": "3.6.2",
@@ -40,14 +41,19 @@
     "typescript-plugin-css-modules": "latest",
     "undici": "*",
     "unist-util-visit": "^5.1.0",
-    "vite": "7.2.6",
-    "vite-plugin-static-copy": "^3.1.4",
+    "vite": "8.2.2",
+    "vite-plugin-static-copy": "^4.1.1",
     "vite-tsconfig-paths": "^4.2.1"
   },
   "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977",
+  "pnpm": {
+    "overrides": {
+      "@builder.io/qwik": "npm:@qwik.dev/core@^2",
+      "@builder.io/qwik-city": "npm:@qwik.dev/router@^2"
+    }
+  },
   "dependencies": {
     "@fontsource/noto-sans-kr": "^5.3.0",
-    "@tailwindcss/vite": "^4.1.18",
     "daisyui": "^5.5.14",
     "katex": "^0.18.4",
     "rehype-katex": "^7.0.1",

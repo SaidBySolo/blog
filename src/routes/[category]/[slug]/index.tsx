@@ -1,6 +1,6 @@
 
-import { component$ } from '@builder.io/qwik';
-import { Link, useLocation, type StaticGenerateHandler } from '@builder.io/qwik-city';
+import { component$ } from '@qwik.dev/core';
+import { Link, useLocation, type StaticGenerateHandler } from '@qwik.dev/router';
 import { usePost, BLOG_POST_LIST, getAuthor, categoryLabel } from '~/utils';
 import type { FrontMatter } from '~/utils';
 

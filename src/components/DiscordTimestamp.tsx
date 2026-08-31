@@ -1,4 +1,4 @@
-import { component$, useSignal, useVisibleTask$ } from '@builder.io/qwik';
+import { component$, useSignal, useVisibleTask$ } from '@qwik.dev/core';
 
 /**
  * 디스코드 타임스탬프 포맷 코드
@@ -62,6 +62,7 @@ export const DiscordTimestamp = component$<Props>(({ unix, format = 'f', locale 
   const fullDate = formatTimestamp(unix, 'F', locale);
 
   // 'R' 포맷일 때만 1초마다 갱신
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ cleanup }) => {
     if (format !== 'R') return;
     const id = setInterval(() => {

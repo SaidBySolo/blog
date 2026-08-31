@@ -1,6 +1,6 @@
 
 import { component$ } from '@qwik.dev/core';
-import { Link, useLocation, type StaticGenerateHandler } from '@qwik.dev/router';
+import { useLocation, type StaticGenerateHandler } from '@qwik.dev/router';
 import { usePost, BLOG_POST_LIST, getAuthor, categoryLabel } from '~/utils';
 import type { FrontMatter } from '~/utils';
 
@@ -12,7 +12,6 @@ export const onStaticGenerate: StaticGenerateHandler = () => {
   });
   return { params };
 };
-
 
 export default component$(() => {
   const mod = usePost();
@@ -29,12 +28,12 @@ export default component$(() => {
   return (
     <>
       <div class="not-prose">
-        <Link
-          href={`/${category}`}
+        <a
+          href={`/${category}/`}
           class="text-xs text-base-content/50 hover:text-base-content transition-colors"
         >
           ← {categoryLabel(category)}
-        </Link>
+        </a>
         <h1 class="text-3xl font-bold tracking-tight mt-2">{frontmatter.title}</h1>
         <div class="flex items-center gap-3 mt-4">
           {author?.avatar ? (
@@ -78,6 +77,5 @@ export const head = ({ resolveValue }: { resolveValue: (fn: (v: { frontmatter: F
     ],
   };
 };
-
 
 export { usePost };

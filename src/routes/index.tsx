@@ -1,5 +1,5 @@
 import { component$ } from "@qwik.dev/core";
-import { Link, type DocumentHead } from "@qwik.dev/router";
+import { type DocumentHead } from "@qwik.dev/router";
 import { useRecentPosts, categoryLabel, getAuthor } from "~/utils";
 
 function formatDate(dateStr: string) {
@@ -45,19 +45,19 @@ export default component$(() => {
       <section>
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-lg font-semibold">Recent Posts</h2>
-          <Link
-            href="/posts"
+          <a
+            href="/posts/"
             class="text-xs text-base-content/50 hover:text-base-content transition-colors"
           >
             View all →
-          </Link>
+          </a>
         </div>
 
         <ul class="divide-y divide-base-200">
           {recent.map((post) => (
             <li key={`${post.category}/${post.slug}`}>
-              <Link
-                href={`/${post.category}/${post.slug}`}
+              <a
+                href={`/${post.category}/${post.slug}/`}
                 class="group flex flex-col gap-1 py-4"
               >
                 <span class="text-xs text-base-content/50">
@@ -69,7 +69,7 @@ export default component$(() => {
                 <span class="text-xs text-base-content/50">
                   {post.frontmatter.author} · {formatDate(post.frontmatter.date)}
                 </span>
-              </Link>
+              </a>
             </li>
           ))}
         </ul>

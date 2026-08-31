@@ -1,5 +1,5 @@
 import { component$ } from "@qwik.dev/core";
-import { Link, useLocation } from "@qwik.dev/router";
+import { useLocation } from "@qwik.dev/router";
 import { GithubIcon } from "lucide-qwik";
 import ThemeToggle from "./ThemeToggle";
 import { CATEGORY_LABELS } from "~/utils";
@@ -20,16 +20,16 @@ export default component$(() => {
   return (
     <header class="sticky top-0 z-50 border-b border-base-200 bg-base-100/95 backdrop-blur">
       <div class="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
-        <Link href="/" class="text-base font-bold tracking-tight">
+        <a href="/" class="text-base font-bold tracking-tight">
           Blog
-        </Link>
+        </a>
 
         <nav class="flex items-center gap-1">
-          <Link href="/" class={linkClass("/")}>Home</Link>
+          <a href="/" class={linkClass("/")}>Home</a>
           {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-            <Link key={key} href={`/${key}`} class={linkClass(`/${key}`)}>
+            <a key={key} href={`/${key}/`} class={linkClass(`/${key}/`)}>
               {label}
-            </Link>
+            </a>
           ))}
           <a
             href="https://github.com/SaidBySolo"

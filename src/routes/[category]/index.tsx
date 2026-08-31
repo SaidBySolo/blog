@@ -1,5 +1,5 @@
 import { component$, useSignal, useComputed$ } from '@qwik.dev/core';
-import { useNavigate, type StaticGenerateHandler } from '@qwik.dev/router';
+import { type StaticGenerateHandler } from '@qwik.dev/router';
 import { usePostList, getAuthor, categoryLabel, BLOG_POST_LIST } from '~/utils';
 
 const PAGE_SIZE = 20;
@@ -27,7 +27,6 @@ export const head = ({ params }: { params: Record<string, string> }) => {
 
 export default component$(() => {
   const posts = usePostList();
-  const nav = useNavigate();
   const page = useSignal(1);
   const sortAsc = useSignal(false);
 
@@ -63,12 +62,8 @@ export default component$(() => {
           return (
             <li key={post.slug}>
               <a
-                href={`/${posts.value.category}/${post.slug}`}
+                href={`/${posts.value.category}/${post.slug}/`}
                 class="group flex items-baseline gap-4 py-3"
-                onClick$={(e) => {
-                  e.preventDefault();
-                  nav(`/${posts.value.category}/${post.slug}`);
-                }}
               >
                 <span class="w-8 shrink-0 text-right text-xs text-base-content/40">
                   {index}
@@ -117,5 +112,3 @@ export default component$(() => {
 });
 
 export { usePostList };
-
-

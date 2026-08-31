@@ -1,5 +1,5 @@
 import { component$ } from "@qwik.dev/core";
-import { Link, type DocumentHead } from "@qwik.dev/router";
+import { type DocumentHead } from "@qwik.dev/router";
 import { useRecentPosts, categoryLabel, getAuthor } from "~/utils";
 
 function formatDate(dateStr: string) {
@@ -17,8 +17,8 @@ export default component$(() => {
       <ul class="divide-y divide-base-200">
         {posts.value.map((post, i) => (
           <li key={`${post.category}/${post.slug}`}>
-            <Link
-              href={`/${post.category}/${post.slug}`}
+            <a
+              href={`/${post.category}/${post.slug}/`}
               class="group flex items-baseline gap-4 py-3"
             >
               <span class="w-8 shrink-0 text-right text-xs text-base-content/40">
@@ -36,7 +36,7 @@ export default component$(() => {
               <span class="shrink-0 text-xs text-base-content/50">
                 {post.frontmatter.date ? formatDate(post.frontmatter.date) : '-'}
               </span>
-            </Link>
+            </a>
           </li>
         ))}
       </ul>

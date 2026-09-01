@@ -10,20 +10,16 @@ import { createRenderer } from "@qwik.dev/router";
 import Root from "./root";
 
 export default createRenderer((opts) => {
-  const frontmatter = (opts.serverData?.frontmatter || {}) as { lang?: string };
-  const lang = frontmatter.lang || "ko";
-
   return {
     jsx: <Root />,
     options: {
       ...opts,
       // Use container attributes to set attributes on the html tag.
       containerAttributes: {
-        lang,
+        lang: "ko",
         ...opts.containerAttributes,
       },
       serverData: {
-        frontmatter,
         ...opts.serverData,
       },
     },

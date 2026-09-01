@@ -78,7 +78,7 @@ export const head = ({ resolveValue, params }: {
 
   // keywords 생성 (공백, 특수문자 기준으로 단어 분리)
   const keywords = [
-    ...(fm.title?.split(/[\s:,·\/\-\(\)]+/).filter((w: string) => w.length > 1) ?? []),
+    ...(fm.title?.split(/[\s:,·/\-()]+/).filter((w: string) => w.length > 1) ?? []),
     params.category,
     fm.author
   ].join(", ");

@@ -1,78 +1,40 @@
 import { component$ } from "@qwik.dev/core";
 import { type DocumentHead } from "@qwik.dev/router";
-import { useRecentPosts, categoryLabel, getAuthor } from "~/utils";
+import { useRecentPosts, categoryLabel } from "~/utils";
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
-  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 }
 
 export default component$(() => {
   const posts = useRecentPosts();
-  const recent = posts.value.slice(0, 5);
-  const author = getAuthor("SaidBySolo");
 
   return (
     <div class="mx-auto w-full max-w-3xl px-4 py-10">
-      {/* Intro */}
-      <section class="flex items-center gap-4 mb-12">
-        {author?.avatar && (
-          <img
-            src={author.avatar}
-            alt={author.name}
-            width={64}
-            height={64}
-            class="h-16 w-16 rounded-full"
-          />
-        )}
-        <div>
-          <h1 class="text-2xl font-bold tracking-tight">SaidBySolo</h1>
-          <p class="mt-1 text-sm text-base-content/60">{author?.bio ?? "Dev blog"}</p>
-          {author?.github && (
-            <a
-              href={author.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="mt-1 inline-block text-xs text-base-content/50 hover:text-base-content transition-colors"
-            >
-              GitHub →
-            </a>
-          )}
-        </div>
-      </section>
-
       {/* Recent posts */}
-      <section>
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold">Recent Posts</h2>
+      <section class="flex flex-col">
+        {posts.value.map((post) => (
           <a
-            href="/posts/"
-            class="text-xs text-base-content/50 hover:text-base-content transition-colors"
+            key={`${post.category}/${post.slug}`}
+            href={`/${post.category}/${post.slug}/`}
+            class="group border-b border-base-200 py-10"
           >
-            View all →
+            <h2 class="mb-1 text-xl font-semibold tracking-tight group-hover:underline md:text-2xl">
+              {post.frontmatter.title || post.slug}
+            </h2>
+            <h3 class="text-sm text-base-content/50">
+              {categoryLabel(post.category)} · {formatDate(post.frontmatter.date)}
+            </h3>
+            {post.frontmatter.description && (
+              <p class="mt-4 text-lg">{post.frontmatter.description}</p>
+            )}
           </a>
-        </div>
-
-        <ul class="divide-y divide-base-200">
-          {recent.map((post) => (
-            <li key={`${post.category}/${post.slug}`}>
-              <a
-                href={`/${post.category}/${post.slug}/`}
-                class="group flex flex-col gap-1 py-4"
-              >
-                <span class="text-xs text-base-content/50">
-                  {categoryLabel(post.category)}
-                </span>
-                <span class="text-base font-medium group-hover:underline underline-offset-4">
-                  {post.frontmatter.title || post.slug}
-                </span>
-                <span class="text-xs text-base-content/50">
-                  {post.frontmatter.author} · {formatDate(post.frontmatter.date)}
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
+        ))}
       </section>
     </div>
   );

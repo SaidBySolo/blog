@@ -67,13 +67,91 @@ export default component$(() => {
 });
 
 
-export const head = ({ resolveValue }: { resolveValue: (fn: (v: { frontmatter: FrontMatter }) => any) => any }) => {
+export const head = ({ resolveValue, params }: {
+  resolveValue: (fn: (v: { frontmatter: FrontMatter }) => any) => any;
+  params: { category: string; slug: string };
+}) => {
   const fm = resolveValue(usePost).frontmatter;
+  const canonicalUrl = `https://blog.solo.moe/${params.category}/${params.slug}`;
+  const lang = fm.lang || "ko";
+  const ogLocale = lang === "en" ? "en_US" : "ko_KR";
+
+  // keywords 생성 (공백, 특수문자 기준으로 단어 분리)
+  const keywords = [
+    ...(fm.title?.split(/[\s:,·\/\-\(\)]+/).filter(w => w.length > 1) ?? []),
+    params.category,
+    fm.author
+  ].join(", ");
+
+  const meta: Array<{
+    name?: string;
+    property?: string;
+    content?: string
+  }> = [
+      { name: "description", content: fm.description || fm.title },
+      { name: "keywords", content: keywords },
+      { name: "author", content: fm.author },
+      { property: "og:type", content: "article" },
+      { property: "og:title", content: fm.title },
+      { property: "og:description", content: fm.description || fm.title },
+      { property: "og:url", content: canonicalUrl },
+      { property: "og:locale", content: ogLocale },
+      { property: "article:published_time", content: new Date(fm.date).toISOString() },
+      { property: "article:author", content: fm.author },
+      { property: "article:section", content: params.category },
+      { name: "twitter:card", content: fm.image ? "summary_large_image" : "summary" },
+      { name: "twitter:title", content: fm.title },
+      { name: "twitter:description", content: fm.description || fm.title },
+    ];
+
+  if (fm.image) {
+    const imageUrl = fm.image.startsWith('http')
+      ? fm.image
+      : `https://blog.solo.moe${fm.image.startsWith('/') ? '' : '/'}${fm.image}`;
+    meta.push(
+      { property: "og:image", content: imageUrl },
+      { name: "twitter:image", content: imageUrl },
+    );
+  }
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: fm.title,
+    description: fm.description || fm.title,
+    datePublished: new Date(fm.date).toISOString(),
+    dateModified: new Date(fm.date).toISOString(),
+    author: {
+      "@type": "Person",
+      name: fm.author,
+      url: "https://blog.solo.moe",
+    },
+    publisher: {
+      "@type": "Person",
+      name: fm.author,
+      url: "https://blog.solo.moe",
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": canonicalUrl,
+    },
+    ...(fm.image && {
+      image: fm.image.startsWith('http')
+        ? fm.image
+        : `https://blog.solo.moe${fm.image.startsWith('/') ? '' : '/'}${fm.image}`
+    }),
+  };
+
   return {
     title: fm.title,
-    meta: [
-      { name: "description", content: fm.title },
-      { property: "og:type", content: "article" },
+    meta,
+    scripts: [
+      {
+        props: {
+          type: "application/ld+json",
+          dangerouslySetInnerHTML: JSON.stringify(jsonLd),
+        },
+      },
     ],
   };
 };

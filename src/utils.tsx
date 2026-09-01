@@ -43,6 +43,7 @@ export interface FrontMatter {
   author: string;
   description?: string;
   image?: string;
+  lang?: "ko" | "en" | string;
 }
 
 interface PostList {

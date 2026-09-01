@@ -17,6 +17,7 @@ export default component$(() => {
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script dangerouslySetInnerHTML={themeScript} />
         {!isDev && (
           <link
@@ -26,7 +27,7 @@ export default component$(() => {
         )}
         <RouterHead />
       </head>
-      <body lang="ko">
+      <body>
         <RouterOutlet />
       </body>
     </>

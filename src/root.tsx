@@ -17,7 +17,8 @@ export default component$(() => {
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="naver-site-verification" content="f72aabde44285b73bc3337d392447c26a6bb4dee" />
+        <meta name="description" content="SaidBySolo's Blog - 개발과 일상을 기록합니다" />
+        <meta name="author" content="SaidBySolo" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <script dangerouslySetInnerHTML={themeScript} />
         {!isDev && (

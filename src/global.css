@@ -74,6 +74,24 @@ html {
   max-width: 100%;
   overflow-x: auto;
 }
+
+/* KaTeX 수식 모바일 대응 */
+.prose .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+}
+
+.prose .katex {
+  font-size: 1em;
+}
+
+@media (max-width: 640px) {
+  .prose .katex {
+    font-size: 0.9em;
+  }
+}
+
 .prose pre code {
   counter-reset: line;
 }

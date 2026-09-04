@@ -8,30 +8,55 @@ export const RouterHead = component$(() => {
   const head = useDocumentHead();
   const loc = useLocation();
 
-  const title = head.title;
+  const title = head.title || "SaidBySolo";
   const description =
     head.meta.find((m) => m.name === "description")?.content ??
-    "Dev blog";
+    "SaidBySolo's Blog - 개발과 일상을 기록합니다";
   const image = head.meta.find((m) => m.property === "og:image")?.content;
+  const hasMeta = (attribute: "name" | "property", value: string) =>
+    head.meta.some((meta) => meta[attribute] === value);
+  const hasCanonical = head.links.some((link) => link.rel === "canonical");
 
   return (
     <>
       <title>{title}</title>
 
-      <link rel="canonical" href={loc.url.href} />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <link rel="icon" type="image/x-icon" href="/icons/favicon.ico" />
+      {!hasCanonical && <link rel="canonical" href={loc.url.href} />}
+      {!hasMeta("name", "description") && (
+        <meta name="description" content={description} />
+      )}
+      {!hasMeta("name", "author") && (
+        <meta name="author" content="SaidBySolo" />
+      )}
 
       {/* Open Graph */}
-      <meta property="og:type" content="website" />
-      <meta property="og:title" content={title} />
-      <meta property="og:description" content={description} />
-      <meta property="og:url" content={loc.url.href} />
-      <meta property="og:site_name" content="SaidBySolo" />
-      {image && <meta property="og:image" content={image} />}
-      <meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={description} />
+      {!hasMeta("property", "og:type") && (
+        <meta property="og:type" content="website" />
+      )}
+      {!hasMeta("property", "og:title") && (
+        <meta property="og:title" content={title} />
+      )}
+      {!hasMeta("property", "og:description") && (
+        <meta property="og:description" content={description} />
+      )}
+      {!hasMeta("property", "og:url") && (
+        <meta property="og:url" content={loc.url.href} />
+      )}
+      {!hasMeta("property", "og:site_name") && (
+        <meta property="og:site_name" content="SaidBySolo" />
+      )}
+      {!hasMeta("name", "twitter:card") && (
+        <meta
+          name="twitter:card"
+          content={image ? "summary_large_image" : "summary"}
+        />
+      )}
+      {!hasMeta("name", "twitter:title") && (
+        <meta name="twitter:title" content={title} />
+      )}
+      {!hasMeta("name", "twitter:description") && (
+        <meta name="twitter:description" content={description} />
+      )}
 
       {head.meta.map((m) => (
         <meta key={m.key} {...m} />

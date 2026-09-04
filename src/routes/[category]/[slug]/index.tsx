@@ -72,7 +72,7 @@ export const head = ({ resolveValue, params }: {
   params: { category: string; slug: string };
 }) => {
   const fm = resolveValue(usePost).frontmatter;
-  const canonicalUrl = `https://blog.solo.moe/${params.category}/${params.slug}`;
+  const canonicalUrl = `https://blog.solo.moe/${params.category}/${params.slug}/`;
   const lang = fm.lang || "ko";
   const ogLocale = lang === "en" ? "en_US" : "ko_KR";
 

@@ -17,8 +17,6 @@ export default component$(() => {
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="SaidBySolo's Blog - 개발과 일상을 기록합니다" />
-        <meta name="author" content="SaidBySolo" />
         <link rel="icon" type="image/x-icon" href="/icons/favicon.ico" />
         <script dangerouslySetInnerHTML={themeScript} />
         {!isDev && (
